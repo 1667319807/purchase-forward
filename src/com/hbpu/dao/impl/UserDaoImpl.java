@@ -8,6 +8,7 @@ import com.hbpu.util.Util;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  * @author qiaolu
@@ -37,5 +38,29 @@ public class UserDaoImpl implements UserDao {
             dao.close(resultSet, pre, connection);
         }
         return flag;
+    }
+
+    @Override
+    public int insert(User user) {
+        String sql="insert into user(username,userpwd,email,rule,qq) values(?,?,?,1,?)";
+        Connection con=null;
+        PreparedStatement pst=null;
+        int i=0;
+        try {
+             con = Util.getConnection();
+             con.setAutoCommit(false);
+             pst = con.prepareStatement(sql);
+             i = dao.exeUpdate(con, pst, user.getName(), user.getPwd(), user.getEmail(), user.getQq());
+        } catch (SQLException e) {
+            try {
+                con.rollback();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+            e.printStackTrace();
+        } finally {
+            dao.close(pst,con);
+        }
+        return i;
     }
 }

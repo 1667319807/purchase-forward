@@ -15,6 +15,15 @@ public class User {
     public User() {
     }
 
+    public User(String id, String name, String pwd, String email, String relu, String qq) {
+        this.id = id;
+        this.name = name;
+        this.pwd = pwd;
+        this.email = email;
+        this.relu = relu;
+        this.qq = qq;
+    }
+
     public User(String name, String pwd) {
         this.name = name;
         this.pwd = pwd;

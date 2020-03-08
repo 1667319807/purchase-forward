@@ -9,11 +9,16 @@ import com.hbpu.service.UserService;
  * @author qiaolu
  * @time 2020/2/29 10:29
  */
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl implements UserService  {
     UserDao userDao = new UserDaoImpl();
     @Override
     public boolean checkUser(User user) {
 
         return userDao.check(user);
+    }
+
+    @Override
+    public int regUser(User user) {
+        return userDao.insert(user);
     }
 }

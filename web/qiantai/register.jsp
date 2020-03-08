@@ -16,7 +16,7 @@
 		if(val==""){
 			document.getElementById("username_notice").innerHTML="用户名不能为空";
 		}else{
-			document.getElementById("username_notice").innerHTML="<img src='images/icon_gou.gif'/>";
+			//document.getElementById("username_notice").innerHTML="&lt;img src='images/icon_gou.gif'/>";
 		}
 	}
 	
@@ -24,7 +24,7 @@
 		if(val==""){
 			document.getElementById("email_notice").innerHTML="用户名不能为空";
 		}else{
-			document.getElementById("email_notice").innerHTML="<img src='images/icon_gou.gif'/>";
+			//document.getElementById("email_notice").innerHTML="&lt;img src='images/icon_gou.gif'/>";
 		}
 	}	
 </script>
@@ -70,7 +70,7 @@
 <div class="usBox">
 	<div class="usBox_2 clearfix">
 		<div class="regtitle"></div>
-		<form action="RegisterBuyerServlet" method="post" name="formUser" onsubmit="checkForm()" >
+		<form action="${pageContext.request.contextPath}/qiantai/RegServlet?method=reg" method="post" name="formUser" onsubmit="checkForm()" >
 			<table width="100%"  border="0" align="left" cellpadding="5" cellspacing="3">
 				<tr>
 					<td width="11%" align="right">用户名</td>
@@ -134,7 +134,7 @@
 <div class="blank5"></div>
 
 <!--友情连接区-->
-<div id="bottomNav" class="box">
+<div id="bottomNav1" class="box">
 	<div class="box_1">
 		<div class="links clearfix">
 			[<a href="###" target="_blank" title="友情连接1">友情连接1</a>]
@@ -148,7 +148,7 @@
 <div class="blank"></div>
 
 <!--底层导航栏-->
-<div id="bottomNav" class="box">
+<div id="bottomNav2" class="box">
 	<div class="box_1">
 		<div class="bNavList clearfix">
    			<div class="f_l"></div>

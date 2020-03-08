@@ -8,4 +8,5 @@ import com.hbpu.pojo.User;
  */
 public interface UserService {
     boolean checkUser(User user);
+    int regUser(User user);
 }
