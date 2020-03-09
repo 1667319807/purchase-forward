@@ -19,7 +19,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public boolean check(User user) {
-        boolean flag = true;
+        boolean flag = false;
         Connection connection = Util.getConnection();
         String sql = "select count(*) from user where username=? and userpwd=?";
         PreparedStatement pre = null;
@@ -27,10 +27,14 @@ public class UserDaoImpl implements UserDao {
         try {
             pre = connection.prepareStatement(sql);
             resultSet = dao.exeQuery(connection, pre, user.getName(), user.getPwd());
-            if (resultSet != null) {
-                flag = true;
+            if (resultSet.next()) {
+                if(resultSet.getInt(1)!=0){
+                    flag = true;
+                    return flag;
+                }
             } else {
                 flag = false;
+                return flag;
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -51,6 +55,7 @@ public class UserDaoImpl implements UserDao {
              con.setAutoCommit(false);
              pst = con.prepareStatement(sql);
              i = dao.exeUpdate(con, pst, user.getName(), user.getPwd(), user.getEmail(), user.getQq());
+             con.commit();
         } catch (SQLException e) {
             try {
                 con.rollback();
@@ -62,5 +67,31 @@ public class UserDaoImpl implements UserDao {
             dao.close(pst,con);
         }
         return i;
+    }
+
+    @Override
+    public boolean sameName(String username) {
+        String sql="select count(*) from user where username=?";
+        Connection con = null;
+        PreparedStatement pst=null;
+        ResultSet res=null;
+        boolean flag = false;
+        try {
+            con = Util.getConnection();
+            pst = con.prepareStatement(sql);
+            res = dao.exeQuery(con, pst, username);
+            if (res.next()&&(res.getInt(1)!=0)) {
+                flag = true;
+                return flag;
+            } else {
+                flag = false;
+                return flag;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }finally {
+            dao.close(res,pst,con);
+        }
+        return flag;
     }
 }

@@ -17,7 +17,7 @@
 	    	<li class="userInfo">
   				<font id="ECS_MEMBERZONE">
 					<div id="append_parent"></div>
- 					欢迎光临本店&nbsp;&nbsp;&nbsp;&nbsp;
+ 					欢迎${sessionScope.user.name}光临本店&nbsp;&nbsp;&nbsp;&nbsp;
  					<a href="login.jsp"><img src="images/bnt_log.gif"/></a>
  					<a href="register.jsp"><img src="images/bnt_reg.gif"/></a>
  				</font>
@@ -134,7 +134,7 @@
 <div class="blank"></div>
 
 <!--底层导航栏-->
-<div id="bottomNav" class="box">
+<div id="bottomNav1" class="box">
 	<div class="box_1">
 		<div class="bNavList clearfix">
    			<div class="f_l"></div>

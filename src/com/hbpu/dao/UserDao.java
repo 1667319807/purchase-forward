@@ -9,4 +9,6 @@ import com.hbpu.pojo.User;
 public interface UserDao {
     boolean check(User user);
     int insert(User user);
+
+    boolean sameName(String username);
 }

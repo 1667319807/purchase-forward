@@ -5,6 +5,7 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Properties;
 
 /**
  * @author qiaolu
@@ -15,9 +16,9 @@ public class Util {
     private static String url = "jdbc:mysql://localhost:3306/ydgk06_tysc?serverTimeZone=UTC";
     private static String userName = "root";
     private static String password = "12345";*/
-    private static ComboPooledDataSource dataSource = new ComboPooledDataSource("mysql");
+    private static ComboPooledDataSource dataSource = new ComboPooledDataSource();
 
-/*    static {
+    static {
         Properties properties = new Properties();
         try {
             properties.load(Util.class.getClassLoader().getResourceAsStream("db.properties"));
@@ -29,7 +30,7 @@ public class Util {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }*/
+    }
 
     public static Connection getConnection() {
         Connection con = null;
@@ -41,7 +42,7 @@ public class Util {
         return con;
     }
 
-    public static PreparedStatement getPreparedStatment(Connection con, String sql, Object... parm) {
+    /*public static PreparedStatement getPreparedStatment(Connection con, String sql, Object... parm) {
         PreparedStatement ps = null;
         try {
             ps = con.prepareStatement(sql);
@@ -53,7 +54,7 @@ public class Util {
             e.printStackTrace();
         }
         return ps;
-    }
+    }*/
 
     /*public static ResultSet exeQuery(String sql, Object... para) {
         Connection con = null;
