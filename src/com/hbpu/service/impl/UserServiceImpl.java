@@ -14,7 +14,7 @@ public class UserServiceImpl implements UserService  {
     UserDao userDao = new UserDaoImpl();
     @Override
     public boolean checkUser(User user) {
-        user.setPwd(Tools.md5(user.getPwd()));
+//      user.setPwd(Tools.md5(user.getPwd()));//登录控制器已经加密过
         return userDao.check(user);
     }
 

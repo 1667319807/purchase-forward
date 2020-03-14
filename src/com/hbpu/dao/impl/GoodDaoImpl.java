@@ -3,6 +3,7 @@ package com.hbpu.dao.impl;
 import com.hbpu.dao.GoodDao;
 import com.hbpu.dao.basicDao;
 import com.hbpu.pojo.Good;
+import com.hbpu.pojo.ShoppingCar;
 import com.hbpu.util.Util;
 
 import java.sql.Connection;
@@ -11,6 +12,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author qiaolu
@@ -46,37 +48,22 @@ public class GoodDaoImpl implements GoodDao {
     }
 
     @Override
-    public List<Good> selectWithCond(Object... para) {
+    public List<Good> selectWithType(String type) {
         Connection con = Util.getConnection();
-        String sql = "select id,gname,type,price,pic from good";
-        String Cond = "";
+        String sql = "select * from good where type =?";
         ResultSet resultSet =null;
         PreparedStatement pre=null;
-        if (((String) para[0]).trim() != "") {
-            Cond = " where id like '%" + ((String) para[0]).trim() + "%'";
-        }else{
-            Cond=" where id like '%%'";
-        }
-        if (((String) para[1]).trim() != "") {
-            Cond += " and gname like '%" + ((String) para[1]).trim() + "%'";
-        } else {
-            Cond += " and gname like '%%'";
-        }if(((String) para[2]).trim() != ""){
-            Cond += " and type like '%" + ((String) para[2]).trim() + "%'";
-        }else{
-            Cond += " and type like '%%'";
-        }
-        sql += Cond;
         List<Good> list = new ArrayList<>();
         try {
             pre = con.prepareStatement(sql);
-            resultSet=dao.exeQuery(con,pre);
+            resultSet=dao.exeQuery(con,pre,type);
             while (resultSet.next()) {
                 Good good = new Good();
                 good.setId(resultSet.getString(1));
                 good.setGname(resultSet.getString(2));
                 good.setType(resultSet.getString(3));
                 good.setPrice(resultSet.getDouble(4));
+                good.setPic(resultSet.getString(5));
                 list.add(good);
             }
         } catch (Exception e) {
@@ -154,4 +141,68 @@ public class GoodDaoImpl implements GoodDao {
         }
         return i;
     }
+
+    @Override
+    public List<String> selectAllType() {
+        List<String> list=new ArrayList<>();
+        String sql="select distinct type from good  ";
+        Connection con = null;
+        PreparedStatement pst=null;
+        ResultSet res=null;
+        try {
+            con = Util.getConnection();
+            pst = con.prepareStatement(sql);
+            res = dao.exeQuery(con, pst);
+            while (res.next()){
+                list.add(res.getString(1));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            dao.close(res,pst,con);
+        }
+
+        return list;
+    }
+
+    @Override
+    public List<Good> queryCar(ShoppingCar car) {
+        List<Good> list = new ArrayList<>();
+        Map<Integer, Integer> c = car.getCar();
+        StringBuffer ids=new StringBuffer();
+        for (Map.Entry<Integer,Integer> entry:c.entrySet()){
+            Integer id=entry.getKey();
+            ids.append(id.toString()).append(",");
+        }
+        String idStr=ids.toString();
+        if(!idStr.isEmpty()){
+            int pos = idStr.lastIndexOf(",");
+            idStr=idStr.substring(0,pos);
+        }else{
+            return list;
+        }
+        Connection con=Util.getConnection();
+        String sql = "select id,gname,price from good where id in ("+idStr+")";
+        PreparedStatement pre= null;
+        ResultSet resultSet=null;
+
+        try {
+            pre = con.prepareStatement(sql);
+            resultSet = dao.exeQuery(con,pre);
+            while (resultSet.next()) {
+                Good good = new Good();
+                good.setId(resultSet.getString(1));
+                good.setGname(resultSet.getString(2));
+                good.setPrice(resultSet.getDouble(3));
+                good.setNum(c.get(resultSet.getInt(1)));
+                list.add(good);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }finally {
+            dao.close(resultSet,pre,con);
+        }
+        return list;
+    }
+
 }

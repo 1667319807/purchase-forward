@@ -6,15 +6,18 @@
     <title></title>
     <link href="css/style.css" rel="stylesheet" type="text/css"/>
 </head>
+<script src="jquery-1.3.2.min.js"></script>
 <script>
-    $(function () {
+    /*$(function () {
         $("#btn").click(function () {
-
-                $("#valiImg").src="${pageContext.request.contextPath}/qiantai/RegServlet?method=validate"+new Date();
-
-
+            $("#valiImg").src="${pageContext.request.contextPath}/qiantai/UserServlet?reqType=validate&a="+new Date();
         })
-    })
+    });*/
+function change1() {
+    var img=document.getElementById("valiImg");
+    img.src="${pageContext.request.contextPath}/qiantai/UserServlet?reqType=validate&a="+new Date();
+
+}
 </script>
 <body>
 <!--LOGO欢迎信息和登陆注册功能-->
@@ -56,7 +59,8 @@
 <div class="usBox clearfix">
     <div class="usBox_1 f_l">
         <div class="logtitle"></div>
-        <form name="" action="${pageContext.request.contextPath}/qiantai/LoginServlet" method="post">
+        <form name="login" action="${pageContext.request.contextPath}/qiantai/UserServlet" method="post">
+            <input type="hidden" name="reqType" value="login">
             <table width="100%" border="0" align="left" cellpadding="3" cellspacing="5">
                 <tr>
                     <td width="15%" align="right">用户名</td>
@@ -69,9 +73,9 @@
                 <tr>
                     <td align="right">验证码</td>
                     <td><input name="validatecode" type="text" size="5"/>
-                        <img id="valiImg" src="${pageContext.request.contextPath}/qiantai/RegServlet?method=validate" width="90" height="20"
+                        <img id="valiImg" src="${pageContext.request.contextPath}/qiantai/UserServlet?reqType=validate" width="90" height="20"
                              style="position: relative; top: 5px"/>
-                        <button id="btn" type="text"  size="2">看不清</button>
+                        <button id="btn" type="text"  size="2" onclick="change1()">看不清</button>
                         ${errvali}
                         ${info}
                     </td>

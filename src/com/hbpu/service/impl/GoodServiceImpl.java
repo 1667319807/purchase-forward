@@ -3,8 +3,11 @@ package com.hbpu.service.impl;
 import com.hbpu.dao.GoodDao;
 import com.hbpu.dao.impl.GoodDaoImpl;
 import com.hbpu.pojo.Good;
+import com.hbpu.pojo.ShoppingCar;
 import com.hbpu.service.GoodService;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -27,8 +30,8 @@ public class GoodServiceImpl implements GoodService {
     }
 
     @Override
-    public List<Good> queryWithCond(String pid, String gname, String ptype) {
-        return goodDao.selectWithCond(pid,gname,ptype);
+    public List<Good> queryWithType( String ptype) {
+        return goodDao.selectWithType(ptype);
     }
 
     @Override
@@ -45,5 +48,15 @@ public class GoodServiceImpl implements GoodService {
     public int remove(Integer id) {
 
         return goodDao.deleteGood(id);
+    }
+
+    @Override
+    public List<String> getAllType(HttpServletRequest request, HttpServletResponse response) {
+        return goodDao.selectAllType();
+    }
+
+    @Override
+    public List<Good> findCar(ShoppingCar car) {
+        return goodDao.queryCar(car);
     }
 }

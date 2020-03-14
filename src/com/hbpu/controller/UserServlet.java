@@ -3,6 +3,7 @@ package com.hbpu.controller;
 import com.hbpu.pojo.User;
 import com.hbpu.service.UserService;
 import com.hbpu.service.impl.UserServiceImpl;
+import com.hbpu.util.Tools;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletException;
@@ -18,11 +19,31 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.Random;
 
-@WebServlet(value = "/qiantai/RegServlet")
-public class RegServlet extends HttpServlet {
+@WebServlet(value = "/qiantai/UserServlet")
+public class UserServlet extends HttpServlet {
     private static String codeChars = "1234567890abcdefghijklmnopqrstuvwxyz";
     UserService service = new UserServiceImpl();
 
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        this.doGet(request, response);
+    }
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String method = request.getParameter("reqType");
+        if (method.equals("reg")) {
+            reg(request, response);
+        }
+        if (method.equals("checkUserName")) {
+            checkUserName(request, response);
+        }if(method.equals("login")){
+            login(request,response);
+
+        }        if (method.equals("validate")) {
+            getValidate(request, response);
+        }
+    }
     private static Color getRandomColor(int minColor, int maxColor) {
         Random random = new Random();
         if (minColor > 255) {
@@ -36,28 +57,38 @@ public class RegServlet extends HttpServlet {
         int blue = minColor + random.nextInt(maxColor - minColor);
         return new Color(red, green, blue);
     }
-
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        this.doGet(request, response);
+    private void login(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String userName = request.getParameter("username");
+        String pwd = request.getParameter("password");
+        String validatecode = request.getParameter("validatecode");
+        HttpSession session = request.getSession();
+        String validation_code = (String) session.getAttribute("validation_code");
+        User user = new User(userName, Tools.md5(pwd));
+        boolean b = service.checkUser(user);
+        if (validatecode == "" || !validatecode.equalsIgnoreCase(validation_code)) {
+            request.setAttribute("errvali", "验证码错误");
+            request.getRequestDispatcher("login.jsp").forward(request, response);
+            return;
+        } else {
+            if (b) {
+                session.setAttribute("user", user);
+                response.sendRedirect("/qiantai/GoodServlet?reqType=main");
+            } else {
+                request.setAttribute("info", "登陆失败");
+                response.getWriter().print("<script>window.history.back()</script>");
+                response.getWriter().flush();
+                request.getRequestDispatcher("login.jsp").forward(request, response);
+            }
+        }
     }
 
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String method = request.getParameter("method");
-        if (method.equals("reg")) {
-            reg(request, response);
-        }
-        if (method.equals("checkUserName")) {
-            checkUserName(request, response);
-        }
-        if (method.equals("validate")) {
-            getValidae(request, response);
-        }
-
-    }
-
-    private void getValidae(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    /**
+     *
+     * @param request
+     * @param response
+     * @throws IOException
+     */
+    private void getValidate(HttpServletRequest request, HttpServletResponse response) throws IOException {
         //获得验证码集合的长度
         int charsLength = codeChars.length();
         //下面3条是关闭客户端浏览器的缓冲区
@@ -99,6 +130,7 @@ public class RegServlet extends HttpServlet {
         ImageIO.write(image, "JPEG", os);//以JPEG格式向客户端发送图形验证码
     }
 
+
     private void checkUserName(HttpServletRequest request, HttpServletResponse response) {
         String username = request.getParameter("username");
         boolean b = service.checkUserName(username);
@@ -118,7 +150,6 @@ public class RegServlet extends HttpServlet {
             }
         }
     }
-
     private void reg(HttpServletRequest request, HttpServletResponse response) {
         String username = request.getParameter("username");
         String email = request.getParameter("email");
@@ -128,8 +159,6 @@ public class RegServlet extends HttpServlet {
         int i = service.regUser(user);
         if (i > 0) {
             try {
-                HttpSession session = request.getSession();
-                session.setAttribute("user", user);
                 response.sendRedirect("login.jsp");
             } catch (IOException e) {
                 e.printStackTrace();
@@ -143,4 +172,7 @@ public class RegServlet extends HttpServlet {
             }
         }
     }
+
 }
+
+

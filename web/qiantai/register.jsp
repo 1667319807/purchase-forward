@@ -35,7 +35,7 @@
         $(function () {
                 $("#username").blur(function () {
                     var value=this.value;
-                    $.get("/qiantai/RegServlet?username="+value+"&method=checkUserName",function (data,result) {
+                    $.get("/qiantai/UserServlet?username="+value+"&reqType=checkUserName",function (data,result) {
                         if(data=='true'){
                             $("#equalname").text("用户名重复");
                             $("#username").select();
@@ -89,7 +89,7 @@
 <div class="usBox">
     <div class="usBox_2 clearfix">
         <div class="regtitle"></div>
-        <form action="${pageContext.request.contextPath}/qiantai/RegServlet?method=reg" method="post" name="formUser"
+        <form action="${pageContext.request.contextPath}/qiantai/UserServlet?reqType=reg" method="post" name="formUser"
               onsubmit="checkForm()">
             <table width="100%" border="0" align="left" cellpadding="5" cellspacing="3">
                 <tr>

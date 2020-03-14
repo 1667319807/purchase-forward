@@ -32,7 +32,7 @@
 	<a href="index.jsp" class="cur">首页<span></span></a>
 	<a href="###">买家必看<span></span></a>
 	<a href="###">优惠活动<span></span></a>
-	<a href="flow.jsp">查看购物车<span></span></a>
+	<a href="/qiantai/GoodServlet?reqType=flow">查看购物车<span></span></a>
 	<a href="###">报价单<span></span></a>
 	<a href="###">留言板<span></span></a>
 	<a href="###">团购商品<span></span></a>
@@ -60,23 +60,20 @@
     	<div class="blank5"></div>
 		<!--左侧购物车-->
 		<div class="cart" id="ECS_CARTINFO">
- 			<a href="flow.php.htm" title="查看购物车">您的购物车中有 0 件商品，总计金额 ￥0.00元。</a>
+ 			<a href="flow.php.htm" title="查看购物车">您的购物车中有${amount}件商品，总计金额 ￥${price}元。</a>
 		</div>
 		<div class="blank5"></div>
 		<!--左侧分类栏-->
 		<div class="box">
  			<div class="box_1">
   				<div id="category_tree">
+					<c:forEach items="${alltype}" var="types">
          			<dl>
      					<dt>
-							<a href="category.php-id=12.htm">类别1</a>
+							<a href="/qiantai/GoodServlet?reqType=main&typeName=${types}">${types}</a>
 						</dt>
 	       			</dl>
-					<dl>
-     					<dt>
-							<a href="category.php-id=12.htm">类别2</a>
-						</dt>
-	       			</dl>
+					</c:forEach>
   				</div>
  			</div>
 		</div>
@@ -89,27 +86,16 @@
   				<div class="itemTit" id="itemBest"></div>
   				<div id="show_best_area" class="clearfix goodsBox">
 					<!--单个商品展示信息-->
+					<c:forEach items="${list}" var="list">
       				<div class="goodsItem">
          				<span class="best"></span>
-           				<a href="flow.jsp">
-							<img src="" alt="测试商品1" class="goodsimg" /></a>
-           				<p><a href="flow.jsp" title="测试商品1">测试商品1</a></p>
-           				<font class="f1">￥55元</font>
+           				<a href="/qiantai/GoodServlet?reqType=addToCar&goodid=${list.id}">
+							<img src="GoodServlet?reqType=downImg&filename=${list.pic}" alt="测试商品1" class="goodsimg" />
+						</a>
+           				<p><a href="/qiantai/GoodServlet?reqType=addToCar&goodid=${list.id}" title="测试商品1">${list.gname}</a></p>
+           				<font class="f1">￥${list.price}</font>
         			</div>
-        			<div class="goodsItem">
-         				<span class="best"></span>
-           				<a href="flow.jsp">
-							<img src="" alt="测试商品1" class="goodsimg" /></a>
-           				<p><a href="flow.jsp" title="测试商品1">测试商品1</a></p>
-           				<font class="f1">￥55元</font>
-        			</div>
-        			<div class="goodsItem">
-         				<span class="best"></span>
-           				<a href="flow.jsp">
-							<img src="" alt="测试商品1" class="goodsimg" /></a>
-           				<p><a href="flow.jsp" title="测试商品1">测试商品1</a></p>
-           				<font class="f1">￥55元</font>
-        			</div>
+					</c:forEach>
     				<div class="more"><a href="###"><img src="images/more.gif" /></a></div>
     			</div>
 			</div>

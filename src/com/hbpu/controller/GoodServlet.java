@@ -1,23 +1,27 @@
 package com.hbpu.controller;
 
 import com.hbpu.pojo.Good;
+import com.hbpu.pojo.ShoppingCar;
 import com.hbpu.service.GoodService;
 import com.hbpu.service.impl.GoodServiceImpl;
+import jdk.nashorn.internal.runtime.RewriteException;
 
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
+import javax.servlet.http.HttpSession;
+import java.io.*;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author qiaolu
  * @time 2020/3/1 12:12
  */
-@WebServlet("/houtai/GoodServlet")
+@WebServlet("/qiantai/GoodServlet")
 public class GoodServlet extends HttpServlet {
     private GoodService service = new GoodServiceImpl();
 
@@ -29,110 +33,138 @@ public class GoodServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String method = request.getParameter("method");
-        if (method.equals("query")) {
-            query(request, response, -1);
+        String method = request.getParameter("reqType");
+        if (method.equals("modCar")) {
+            modCar(request, response);
         }
-        if (method.equals("queryWithCond")) {
-            queryWithCond(request, response);
+        if (method.equals("delCar")) {
+            delCar(request, response);
         }
-        if (method.equals("mod")) {
-            mod(request, response);
+        if (method.equals("downImg")) {
+            downImg(request, response);
         }
-        if (method.equals("remove")) {
-            remove(request, response);
+        if (method.equals("clearCar")) {
+            clearCar(request, response);
+        }
+        if (method.equals("main")) {
+            main(request, response);
+        }
+        if(method.equals("addToCar")){
+            addToCar(request,response);
+        }
+        if(method.equals("flow")){
+            openCar(request,response);
         }
 
     }
 
-    private void remove(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        Integer pageNow = Integer.valueOf(request.getParameter("pageNow"));
-        Integer id = Integer.valueOf(request.getParameter("id"));
-        int i = service.remove(id);
-        int count = service.queryCount();
-        if (count % 2 == 0) {
-            query(request, response, pageNow - 1);
-            //response.sendRedirect("/houtai/GoodServlet?method=query&pageNow="+(pageNow-1));
-        } else {
-            if (i > 0) {
-                try {
-                    PrintWriter writer = response.getWriter();
-                    writer.print("<script>window.confirm('确定要删除吗？')</script>");
-                    query(request, response, pageNow);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                response.setContentType("text/html;charser=UTF-8");
-                PrintWriter writer = response.getWriter();
-                writer.print("<script>window.alert('修改失败');window.history.back()</script>");
+    private void openCar(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        HttpSession session = request.getSession();
+        ShoppingCar car = (ShoppingCar) session.getAttribute("car");
+        List<Good> goodList = service.findCar(car);
+        request.setAttribute("car",goodList);
+        request.getRequestDispatcher("flow.jsp").forward(request,response);
+    }
+
+    private void addToCar(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        Integer goodid = Integer.valueOf(request.getParameter("goodid"));
+        HttpSession session=request.getSession();
+        ShoppingCar car = (ShoppingCar) session.getAttribute("car");
+        if(car==null){
+            car=new ShoppingCar();
+        }
+        car.addGood(goodid);
+
+        genericCar(request,response,car,session);
+    }
+    private void genericCar(HttpServletRequest request, HttpServletResponse response,ShoppingCar car,HttpSession session ) throws ServletException, IOException {
+        //添加购物车到session
+        session.setAttribute("car",car);
+        List<Good> goodList = service.findCar(car);
+        request.setAttribute("car",goodList);
+        request.getRequestDispatcher("flow.jsp").forward(request,response);
+    }
+
+
+    private void downImg(HttpServletRequest request, HttpServletResponse response) {
+        String filename = request.getParameter("filename");
+        String path = request.getServletContext().getRealPath("/WEB-INF/upload/" + filename);
+        FileInputStream fis = null;
+        ServletOutputStream sos = null;
+        try {
+            fis = new FileInputStream(path);
+            sos = response.getOutputStream();
+            int len = 0;
+            byte b[] = new byte[1024];
+            while ((len = fis.read(b)) != -1) {
+                sos.write(b, 0, len);
+            }
+            sos.flush();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                sos.close();
+                fis.close();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }
 
-    private void mod(HttpServletRequest request, HttpServletResponse response) {
-        Integer pageNow = Integer.valueOf(request.getParameter("pageNow"));
-        String pid = request.getParameter("pid");
-        String gname = request.getParameter("pname");
-        String type = request.getParameter("ptype");
-        String price = request.getParameter("pprice");
-        Good good = new Good(pid, gname, type, Double.valueOf(price), null);
-        int i = service.updategood(good);
-        if (i > 0) {
-            query(request, response, pageNow);
-        }
-    }
+    private void main(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-    private void query(HttpServletRequest request, HttpServletResponse response, int updatePage) {
-        Integer pageNow;
-        if (updatePage == -1) {
-            pageNow = Integer.valueOf(request.getParameter("pageNow"));
-            if (pageNow <= 1) {
-                pageNow = 1;
+        String typeName = request.getParameter("typeName");
+        List<String> allType = service.getAllType(request, response);
+        List<Good> list = null;
+        if (allType.size() > 0) {
+            if (typeName == null || typeName.isEmpty()) {
+                typeName = allType.get(0);
             }
-        } else {
-            pageNow = updatePage;
+            list = service.queryWithType(typeName);
         }
-        List<Good> list = service.queryAll((pageNow - 1) * 2, 2);
-        int count = service.queryCount();
-        int totalPage = 0;
-        if (count % 2 == 0) {
-            totalPage = count / 2;
-        } else {
-            totalPage = count / 2 + 1;
+        HttpSession session=request.getSession();
+        ShoppingCar car = (ShoppingCar) session.getAttribute("car");
+        int amount=0;
+        double price=0;
+        if(car!=null){
+            amount=car.getAmount();
+            price=car.getTotalPrice();
         }
-        request.setAttribute("pageNow", pageNow);
-        request.setAttribute("goodlist", list);
-        request.setAttribute("count", count);
-        request.setAttribute("totalPage", totalPage);
-        try {
-            request.getRequestDispatcher("productListUI.jsp").forward(request, response);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        request.setAttribute("amount", amount);
+        request.setAttribute("price", price);
+        request.setAttribute("alltype", allType);
+        request.setAttribute("list", list);
+        request.getRequestDispatcher("index.jsp").forward(request, response);
+    }
+    private void delCar(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        Integer goodid = Integer.valueOf(request.getParameter("goodid"));
+        HttpSession session=request.getSession();
+        ShoppingCar car = (ShoppingCar) session.getAttribute("car");
+        car.remove(goodid);
+        session.setAttribute("car",car);
+        genericCar(request,response,car,session);
+    }
+    private void clearCar(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        HttpSession session = request.getSession();
+        ShoppingCar car = (ShoppingCar) session.getAttribute("car");
+        car.clear();
+        genericCar(request,response,car,session);
     }
 
-    private void queryWithCond(HttpServletRequest request, HttpServletResponse response) {
-        String pid = request.getParameter("pid");
-        String gname = request.getParameter("pname");
-        String ptype = request.getParameter("ptype");
-        List<Good> list = service.queryWithCond(pid, gname, ptype);
-        int count = service.queryCount();
-        int totalPage = 0;
-        if (count % 2 == 0) {
-            totalPage = count / 2;
-        } else {
-            totalPage = count / 2 + 1;
+    private void modCar(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String goodids[] = request.getParameterValues("goodids");
+        String amounts[] = request.getParameterValues("amounts");
+        Integer ids[]=new Integer[goodids.length];
+        Integer amounts_int[]=new Integer[goodids.length];
+        for (int i = 0; i < goodids.length; i++) {
+            ids[i]=Integer.valueOf(goodids[i]);
+            amounts_int[i]=Integer.valueOf(amounts[i]);
         }
-        request.setAttribute("count", count);
-        request.setAttribute("goodlist", list);
-        request.setAttribute("totalPage", totalPage);
-        try {
-            request.getRequestDispatcher("productListUI.jsp").forward(request, response);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        HttpSession session = request.getSession();
+        ShoppingCar car = (ShoppingCar) session.getAttribute("car");
+        car.modGood(ids,amounts_int);
+        genericCar(request,response,car,session);
+
     }
-
-
 }

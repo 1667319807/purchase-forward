@@ -10,7 +10,7 @@ public class Good {
     private String type;
     private Double price;
     private String pic;
-
+    private Integer num;
     public Good() {
     }
 
@@ -20,6 +20,14 @@ public class Good {
         this.type = type;
         this.price = price;
         this.pic = pic;
+    }
+
+    public Integer getNum() {
+        return num;
+    }
+
+    public void setNum(Integer num) {
+        this.num = num;
     }
 
     public String getId() {

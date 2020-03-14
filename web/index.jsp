@@ -5,6 +5,6 @@
     <title>$Title$</title>
   </head>
   <body>
-  <c:redirect url="qiantai/index.jsp"></c:redirect>
+  <c:redirect url="qiantai/GoodServlet?reqType=main"></c:redirect>
   </body>
 </html>
